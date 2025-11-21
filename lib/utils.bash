@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for wizcli.
 GH_REPO="https://wiz.io"
 TOOL_NAME="wizcli"
 TOOL_TEST="wizcli --help"
@@ -31,9 +30,8 @@ list_github_tags() {
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if wizcli has other means of determining installable versions.
-	list_github_tags
+	# don't know how to list available versions for wizcli, so just return 'latest'
+	echo latest
 }
 
 download_release() {
@@ -41,8 +39,32 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for wizcli
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	platform="unsupported" # filled by `case` below
+	arch="unsupported"     # filled by `case` below
+
+	case "$(uname)" in
+	"Linux")
+		platform="linux"
+	;;
+	"Darwin")
+		platform="darwin"
+	;;
+	esac
+
+	case "$(uname -m)" in
+	"x86_64")
+		arch="amd64"
+	;;
+	"aarch64")
+		arch="arm64"
+	;;
+	"arm64")
+		arch="arm64"
+	;;
+	esac
+
+	asset="wizcli-${platform}-${arch}"
+	url="https://wizcli.app.wiz.io/${version}/${asset}"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -61,7 +83,6 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert wizcli executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
