@@ -45,22 +45,22 @@ download_release() {
 	case "$(uname)" in
 	"Linux")
 		platform="linux"
-	;;
+		;;
 	"Darwin")
 		platform="darwin"
-	;;
+		;;
 	esac
 
 	case "$(uname -m)" in
 	"x86_64")
 		arch="amd64"
-	;;
+		;;
 	"aarch64")
 		arch="arm64"
-	;;
+		;;
 	"arm64")
 		arch="arm64"
-	;;
+		;;
 	esac
 
 	asset="wizcli-${platform}-${arch}"
